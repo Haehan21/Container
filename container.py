@@ -5,9 +5,12 @@ from pmdarima.arima import auto_arima
 import statsmodels
 from sklearn.model_selection import train_test_split
 from statsmodels.tsa.statespace.sarimax import SARIMAX
-
+from sklearn.metrics import r2_score
+import datetime
 
 # DATA PREPARATION
+nowdate = datetime.datetime.now().strftime('%Y%m%d%H'); nowdate
+
 raw = pd.read_csv('container.csv')
 data = raw[12:] # 딱 떨어지게 20년치 데이터로 
 data.info()
@@ -31,6 +34,10 @@ predict_index = test_df.index
 pred_df = pd.DataFrame(predicted_val, predict_index, columns= ['container_pred'])
 
 
+# R-SQUARE
+print(r2_score(test_df['container'], pred_df['container_pred']))
+
+
 #  PREDICTION
 model = SARIMAX(endog=data['container'],
             # exog=x_train
@@ -52,6 +59,9 @@ model = SARIMAX(endog=data['container'],
 model_fit = model.fit(maxiter = 300)
 
 start_pred_len = len(data['container'])
-end_pred_len = start_pred_len + 12*5 - 1 #12면 1년치, 12*5면 5년치 예측
+end_pred_len = start_pred_len + 12*5 - 1 # 5년치 예측
 pred_df = pd.DataFrame(model_fit.predict(start=start_pred_len, end=end_pred_len))
-pred_df.to_csv(f'container_prediction.csv', encoding='cp949', index=True)
+
+
+# TO EXCEL
+pred_df.to_csv(f'container_prediction_{nowdate}.csv', encoding='cp949', index=True)

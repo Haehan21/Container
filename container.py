@@ -9,7 +9,7 @@ from statsmodels.tsa.statespace.sarimax import SARIMAX
 
 # DATA PREPARATION
 raw = pd.read_csv('container.csv')
-data = raw[12:] # 딱 떨어지게 10년치 데이터로 
+data = raw[12:] # 딱 떨어지게 20년치 데이터로 
 data.info()
 train_df, test_df = train_test_split(data, test_size=0.1, shuffle=False)
 train_df.index = data.date[:len(train_df)]
@@ -52,6 +52,6 @@ model = SARIMAX(endog=data['container'],
 model_fit = model.fit(maxiter = 300)
 
 start_pred_len = len(data['container'])
-end_pred_len = start_pred_len + 12 - 1
+end_pred_len = start_pred_len + 12*5 - 1 #12면 1년치, 12*5면 5년치 예측
 pred_df = pd.DataFrame(model_fit.predict(start=start_pred_len, end=end_pred_len))
 pred_df.to_csv(f'container_prediction.csv', encoding='cp949', index=True)
